@@ -16,7 +16,6 @@ def apiGonder(system, request):
     response = api.messages.create(model="claude-haiku-4-5", max_tokens=2000, system= system ,messages=[{"role":"user","content": request}])   
     return response.content[0].text
 
-
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 api = anthropic.Anthropic(api_key=api_key)
@@ -28,6 +27,7 @@ request = st.text_area("SQL girin")
 
 buton = st.button("Açıkla")
 optimizeButon = st.button("Sorguyu optimize et")
+hataButon = st.button("Hata Tespit")
 
 if buton and request:
     with st.spinner("Açıklanıyor..."):
@@ -43,10 +43,17 @@ if request and optimizeButon:
     yaz(optimizeResponse)
     logla(request,optimizeResponse)
 elif not request and optimizeButon:
-    hataBas()   
+    hataBas()
 
+if request and hataButon:
+    with st.spinner("Hata tespit ediliyor..."):
+        hataResponse = apiGonder("Verilen SQL sorgusunda hata var mı kontrol et. Hata varsa nerede olduğunu ve nasıl düzeltileceğini Türkçe açıkla. Hata yoksa 'Sorguda hata bulunamadı.' de.", request)
+    yaz(hataResponse)
+    logla(request,hataResponse)
+elif not request and hataButon:
+    hataBas()      
 
 for item in st.session_state["gecmis"]:
     sorgu = item["sorgu"]
     with st.expander(sorgu):
-        st.write(item["cevap"])
+        yaz(item["cevap"])
