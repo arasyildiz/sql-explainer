@@ -16,8 +16,14 @@ def apiGonder(system, request):
     response = api.messages.create(model="claude-haiku-4-5", max_tokens=2000, system= system ,messages=[{"role":"user","content": request}])   
     return response.content[0].text
 
-def islem():
-    return
+def islem(buton, promt, request):
+    if request and buton:
+        with st.spinner("Düşünüyor..."):
+            response = apiGonder(promt, request)
+        yaz(response)
+        logla(request,response)
+    elif not request and buton:
+        hataBas() 
 
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -32,30 +38,10 @@ buton = st.button("Açıkla")
 optimizeButon = st.button("Sorguyu optimize et")
 hataButon = st.button("Hata Tespit")
 
-if buton and request:
-    with st.spinner("Düşünüyor..."):
-        ai_response = apiGonder("SQL sorgusunun ne işe yaradığını türkçe bir şekilde açıkla", request)
-    yaz(ai_response)
-    logla(request,ai_response)
-elif not request and buton:
-    hataBas()
-
-if request and optimizeButon:
-    with st.spinner("Düşünüyor..."):
-        optimizeResponse = apiGonder("SQL sorgusunun optimize et", request)
-    yaz(optimizeResponse)
-    logla(request,optimizeResponse)
-elif not request and optimizeButon:
-    hataBas()
-
-if request and hataButon:
-    with st.spinner("Düşünüyor..."):
-        hataResponse = apiGonder("Verilen SQL sorgusunda hata var mı kontrol et. Hata varsa nerede olduğunu ve nasıl düzeltileceğini Türkçe açıkla. Hata yoksa 'Sorguda hata bulunamadı.' de.", request)
-    yaz(hataResponse)
-    logla(request,hataResponse)
-elif not request and hataButon:
-    hataBas()      
-
+islem(buton, "SQL sorgusunun ne işe yaradığını türkçe bir şekilde açıkla", request)
+islem(optimizeButon, "SQL sorgusunun optimize et", request)
+islem(hataButon, "Verilen SQL sorgusunda hata var mı kontrol et. Hata varsa nerede olduğunu ve nasıl düzeltileceğini Türkçe açıkla. Hata yoksa 'Sorguda hata bulunamadı.' de.", request)
+  
 for item in st.session_state["gecmis"]:
     sorgu = item["sorgu"]
     with st.expander(sorgu):
